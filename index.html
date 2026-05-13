@@ -433,7 +433,7 @@
             </div>
             <div class="zone-group">
                 <div class="zone-header"><span class="zone-title">Titan Grotto</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
-                <div class="step optional" onclick="toggle(this, 'a2_s49')"><div class="step-top"><input type="checkbox" id="a2_s49"><span class="step-text">(OPTIONAL) Find Titan's Sword (Environmental Object). <span class="rew">Random Lesser Rune</span></span></div></div>
+                <div class="step optional" onclick="toggle(this, 'a2_s49')"><div class="step-top"><input type="checkbox" id="a2_s49"><span class="step-text">(OPTIONAL) Find the Titan's Sword (Environmental Object). <span class="rew">Random Lesser Rune</span></span></div></div>
                 <div class="step" onclick="toggle(this, 'a2_s50')"><div class="step-top"><input type="checkbox" id="a2_s50"><span class="step-text">Find and kill the boss.</span></div></div>
                 <div class="step" onclick="toggle(this, 'a2_s51')"><div class="step-top"><input type="checkbox" id="a2_s51"><span class="step-text">Go to town.</span></div></div>
             </div>
@@ -649,73 +649,105 @@
         </div>
     </details>
 
-    <details id="act4">
-        <summary>ACT 4: KINGSMARCH (BONUSES ONLY)</summary>
+    <details id="act4" open>
+        <summary>ACT 4: KINGSMARCH</summary>
         <div class="act-content">
             <div class="zone-group">
-                <div class="zone-header"><span class="zone-title">Campaign Bonuses</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
-                <div class="step" onclick="toggle(this, 'a4_s1')"><div class="step-top"><input type="checkbox" id="a4_s1"><span class="step-text perm-step">Journey's End: Defeat Omniphobia and complete the Dark Mists Quest: <span class="perm-reward">(+2 skill points)</span></span></div></div>
-                <div class="step" onclick="toggle(this, 'a4_s2')"><div class="step-top"><input type="checkbox" id="a4_s2"><span class="step-text perm-step">Halls of the Dead: Trial of Ngkanu - <span class="perm-reward">(Choice between +5% Fire Res or +5 Strength, +5% Cold Resistance or +5 Dexterity, and +5% Lightning Resistance or +5 Intelligence)</span></span></div></div>
-                <div class="step" onclick="toggle(this, 'a4_s3')"><div class="step-top"><input type="checkbox" id="a4_s3"><span class="step-text perm-step">Halls of the Dead: <span class="perm-reward">(5% increased Maximum Mana)</span></span></div></div>
-                <div class="step" onclick="toggle(this, 'a4_s4')"><div class="step-top"><input type="checkbox" id="a4_s4"><span class="step-text perm-step">Trail of the Ancestors. Complete the Trial, speak to Hinekora at the end. <span class="perm-reward">(+2 skill points)</span></span></div></div>
-                <div class="step" onclick="toggle(this, 'a4_s5')"><div class="step-top"><input type="checkbox" id="a4_s5"><span class="step-text">Whakapanu Island: Crab Cave <span class="rew">Uncut Support Gem</span></span></div></div>
-                <div class="step" onclick="toggle(this, 'a4_s6')"><div class="step-top"><input type="checkbox" id="a4_s6"><span class="step-text">Singing Caverns: Beckoning Clam - Return the Pearl to Rog in Kingsmarch <span class="rew">Rare Pearlescent Amulet (implicit grants #% to All Elemental Resistances)</span></span></div></div>
-                <div class="step" onclick="toggle(this, 'a4_s7')"><div class="step-top"><input type="checkbox" id="a4_s7"><span class="step-text">Arastas: Morning & Evening Bell <span class="rew">3 Regal Orbs + 3 Exalted Orbs</span></span></div></div>
-                <div class="step" onclick="toggle(this, 'a4_s8')"><div class="step-top"><input type="checkbox" id="a4_s8"><span class="step-text">Isle of Kin: Beast Pen <span class="rew">Uncut Skill Gem + Uncut Support Gem (unconfirmed if consistent)</span></span></div></div>
-                <div class="step" onclick="toggle(this, 'a4_s9')"><div class="step-top"><input type="checkbox" id="a4_s9"><span class="step-text">Volcanic Warrens: Volcanic Nest - Two bosses <span class="rew">possible Rare Ring drop?</span></span></div></div>
+                <div class="zone-header"><span class="zone-title">Main Questline</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a4_s1')"><div class="step-top"><input type="checkbox" id="a4_s1"><span class="step-text">Town (Kingsmarch) - Talk to NPCs for Book Charter - Talk to Makoru - Sail to Kedge Bay.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a4_s2')"><div class="step-top"><input type="checkbox" id="a4_s2"><span class="step-text">Kedge Bay - Go to Journey's End.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a4_s3')"><div class="step-top"><input type="checkbox" id="a4_s3"><span class="step-text">Journey's End - Summon Tujen - Kill Captain Hartlin (end of zone) - Take Verisium</span></div></div>
+                <div class="step" onclick="toggle(this, 'a4_s4')"><div class="step-top"><input type="checkbox" id="a4_s4"><span class="step-text">Portal to Town.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a4_s5')"><div class="step-top"><input type="checkbox" id="a4_s5"><span class="step-text">Town - Talk to Dannig for Verisium Spikes - WP to Journey's End.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a4_s6')"><div class="step-top"><input type="checkbox" id="a4_s6"><span class="step-text perm-step">Journey's End - Talk to Freya - Activate Karui Totems - Kill Omniphobia, Fear Manifest. <span class="perm-reward">(+2 skill points)</span></span></div></div>
+                <div class="step" onclick="toggle(this, 'a4_s7')"><div class="step-top"><input type="checkbox" id="a4_s7"><span class="step-text">Portal to Town.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a4_s8')"><div class="step-top"><input type="checkbox" id="a4_s8"><span class="step-text">Town - Talk to Tujen - Talk to Makoru - Sail to Isle of Kin.</span></div></div>
+                <div class="step optional" onclick="toggle(this, 'a4_s9')"><div class="step-top"><input type="checkbox" id="a4_s9"><span class="step-text">Isle of Kin - Kill The Blind Beast (optional) - Go to Volcanic Warrens.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a4_s10')"><div class="step-top"><input type="checkbox" id="a4_s10"><span class="step-text">Volcanic Warrens - Kill Krutog, Lord of Kin (end of zone) - Talk to Hooded One - Return to Ship.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a4_s11')"><div class="step-top"><input type="checkbox" id="a4_s11"><span class="step-text">Ship - Talk to Makoru - Sail to Abandoned Prison.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a4_s12')"><div class="step-top"><input type="checkbox" id="a4_s12"><span class="step-text">Abandoned Prison - Kill monsters for Chapel Key.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a4_s13')"><div class="step-top"><input type="checkbox" id="a4_s13"><span class="step-text perm-step">Open Chapel Door - Tag WP - <span class="perm-reward">(Activate Goddess of Justice, flask recovery)</span></span></div></div>
+                <div class="step" onclick="toggle(this, 'a4_s14')"><div class="step-top"><input type="checkbox" id="a4_s14"><span class="step-text">Use Levers - Go to Solitary Confinement.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a4_s15')"><div class="step-top"><input type="checkbox" id="a4_s15"><span class="step-text">Solitary Confinement - Use Levers - Kill The Prisoner - Talk to Hooded One - Return to Ship.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a4_s16')"><div class="step-top"><input type="checkbox" id="a4_s16"><span class="step-text">Ship - Talk to Makoru - Sail to Whakapanu Island.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a4_s17')"><div class="step-top"><input type="checkbox" id="a4_s17"><span class="step-text">Whakapanu Island - Go to Singing Caverns.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a4_s18')"><div class="step-top"><input type="checkbox" id="a4_s18"><span class="step-text">Singing Caverns - Tag WP - Kill Diamora, Song of Death - Talk to Hooded One - Return to Ship.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a4_s19')"><div class="step-top"><input type="checkbox" id="a4_s19"><span class="step-text">Ship - Talk to Makoru - Sail to Shrike Island.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a4_s20')"><div class="step-top"><input type="checkbox" id="a4_s20"><span class="step-text">Shrike Island - Kill Scourge of the Skies (end of zone) - Talk to Hooded One - Return to Ship.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a4_s21')"><div class="step-top"><input type="checkbox" id="a4_s21"><span class="step-text">Ship - Talk to Makoru - Sail to Eye of Hinekora.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a4_s22')"><div class="step-top"><input type="checkbox" id="a4_s22"><span class="step-text perm-step">Eye of Hinekora - Talk to NPCs - Activate Well of Hinekora - Pass 3 tests - <span class="perm-reward">Click Pay your Respects. (Mana boost)</span></span></div></div>
+                <div class="step" onclick="toggle(this, 'a4_s23')"><div class="step-top"><input type="checkbox" id="a4_s23"><span class="step-text">Go to Halls of the Dead (further down).</span></div></div>
+                <div class="step" onclick="toggle(this, 'a4_s24')"><div class="step-top"><input type="checkbox" id="a4_s24"><span class="step-text perm-step">Halls of the Dead - Tag WP - Pass x3 test. <span class="perm-reward">(Bonus resistance/stats)</span></span></div></div>
+                <div class="step" onclick="toggle(this, 'a4_s25')"><div class="step-top"><input type="checkbox" id="a4_s25"><span class="step-text">Defeat Yama The White - Take Silver Coin - Go to Trial of the Ancestors.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a4_s26')"><div class="step-top"><input type="checkbox" id="a4_s26"><span class="step-text perm-step">Trial of the Ancestors - Tag WP - Talk to Navali - <span class="perm-reward">Take Tattoo of Hinekora. (+2 skill points)</span></span></div></div>
+                <div class="step" onclick="toggle(this, 'a4_s27')"><div class="step-top"><input type="checkbox" id="a4_s27"><span class="step-text">Return to Ship.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a4_s28')"><div class="step-top"><input type="checkbox" id="a4_s28"><span class="step-text">Ship - Talk to Makoru - Sail to Arastas.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a4_s29')"><div class="step-top"><input type="checkbox" id="a4_s29"><span class="step-text">Arastas - Tag WP - Talk to Missionary Lorandis - Enter church, Exit the church, Destroy forcefield - Kill Torvian, Hand of the Saviour - Go to Excavation.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a4_s30')"><div class="step-top"><input type="checkbox" id="a4_s30"><span class="step-text">Excavation - Kill Benedictus, First Herald of Utopia - Enter forge - Talk to Hooded One - Portal to Town.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a4_s31')"><div class="step-top"><input type="checkbox" id="a4_s31"><span class="step-text">Town - Talk to NPCs - Talk to Rhodri (at the ship) - Sail to Ngakanu.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a4_s32')"><div class="step-top"><input type="checkbox" id="a4_s32"><span class="step-text">Ngakanu - Go to Heart of the Tribe.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a4_s33')"><div class="step-top"><input type="checkbox" id="a4_s33"><span class="step-text">Heart of the Tribe - Tag WP - Kill Tavakai, the Chieftain, Tavakai, the Fallen and Tavakai, the Consumed - Portal to Town.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a4_s34')"><div class="step-top"><input type="checkbox" id="a4_s34"><span class="step-text">Town - Talk to NPCs - Talk to Hooded One - Go to Ogham, Vastiri, or Mount Kriar.</span></div></div>
             </div>
         </div>
     </details>
 
     <details id="act51">
-        <summary>ACT 5.1: OGHAM (BONUSES ONLY)</summary>
+        <summary>ACT 5.1: OGHAM</summary>
         <div class="act-content">
             <div class="zone-group">
-                <div class="zone-header"><span class="zone-title">Wolvenhold</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
-                <div class="step" onclick="toggle(this, 'a51_s1')">
-                    <div class="step-top"><input type="checkbox" id="a51_s1"><span class="step-text perm-step">Wolvenhold Boss <span class="perm-reward">(+2 skill points)</span></span></div>
-                    <div class="tip">Wolvenhold is found after Holten.</div>
-                </div>
+                <div class="zone-header"><span class="zone-title">Navigation Points</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a51_s1')"><div class="step-top"><input type="checkbox" id="a51_s1"><span class="step-text">Town (The Refuge) - Talk to NPCs - Go to Scorched Farmlands (bottom exit).</span></div></div>
+                <div class="step" onclick="toggle(this, 'a51_s2')"><div class="step-top"><input type="checkbox" id="a51_s2"><span class="step-text">Scorched Farmlands - Kill Heldra of the Black Pyre and Isolde of the White Shroud - Go to Stones of Serle.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a51_s3')"><div class="step-top"><input type="checkbox" id="a51_s3"><span class="step-text">Stones of Serle - Activate all Runed Megaliths - Go to center rune - Kill Siora, Blade of the Mists - Talk to Una - Go to Scorched Farmlands.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a51_s4')"><div class="step-top"><input type="checkbox" id="a51_s4"><span class="step-text">Scorched Farmlands - Go to darkness - Go to Blackwood - Go to Holten.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a51_s5')"><div class="step-top"><input type="checkbox" id="a51_s5"><span class="step-text">Holten - Go to Wolvenhold.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a51_s6')"><div class="step-top"><input type="checkbox" id="a51_s6"><span class="step-text perm-step">Wolvenhold - Kill Oswin, the Dread Warden. <span class="perm-reward">(+2 skill points)</span></span></div></div>
+                <div class="step" onclick="toggle(this, 'a51_s7')"><div class="step-top"><input type="checkbox" id="a51_s7"><span class="step-text">Go to Holten - Go to Holten Estate.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a51_s8')"><div class="step-top"><input type="checkbox" id="a51_s8"><span class="step-text">Holten Estate - Tag WP - Go upstairs, then downstairs - Kill Thane Wulfric and Lady Elswyth (ground floor) - Portal to Town.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a51_s9')"><div class="step-top"><input type="checkbox" id="a51_s9"><span class="step-text">Town - Talk to NPCs - Talk to Hooded One - Go to Vastiri.</span></div></div>
             </div>
         </div>
     </details>
 
     <details id="act52">
-        <summary>ACT 5.2: KHARI BAZAAR (BONUSES ONLY)</summary>
+        <summary>ACT 5.2: KHARI BAZAAR</summary>
         <div class="act-content">
             <div class="zone-group">
-                <div class="zone-header"><span class="zone-title">Khari Crossing</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
-                <div class="step" onclick="toggle(this, 'a52_s1')">
-                    <div class="step-top"><input type="checkbox" id="a52_s1"><span class="step-text perm-step">Inside the Skullmaw Stairway - Molten One's Gift: <span class="perm-reward">(+5% to Maximum Life)</span></span></div>
-                    <div class="tip">You might need to find a seal in the Khari.</div>
-                </div>
-                <div class="step" onclick="toggle(this, 'a52_s2')"><div class="step-top"><input type="checkbox" id="a52_s2"><span class="step-text perm-step">Slay the Worm and Scorpion and talk to Risu. <span class="perm-reward">(+2 skill points)</span></span></div></div>
-            </div>
-            <div class="zone-group">
-                <div class="zone-header"><span class="zone-title">Qimah</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
-                <div class="step" onclick="toggle(this, 'a52_s3')"><div class="step-top"><input type="checkbox" id="a52_s3"><span class="step-text">Qimah - Choice of 7 Boons.</span></div></div>
+                <div class="zone-header"><span class="zone-title">Navigation Points</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a52_s1')"><div class="step-top"><input type="checkbox" id="a52_s1"><span class="step-text">Town (The Khari Bazaar) - Talk to NPCs - Go to Khari Crossing.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a52_s2')"><div class="step-top"><input type="checkbox" id="a52_s2"><span class="step-text perm-step">Khari Crossing - Kill Akthi, the Final Sting and Anundr, the Sandworm (top right) - Portal to Town. <span class="perm-reward">(+2 skill points)</span></span></div></div>
+                <div class="step" onclick="toggle(this, 'a52_s3')"><div class="step-top"><input type="checkbox" id="a52_s3"><span class="step-text">Town - Talk to Risu.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a52_s4')"><div class="step-top"><input type="checkbox" id="a52_s4"><span class="step-text perm-step">Go to Khari Crossing - Go to Skullmaw Stairway (top left) - <span class="perm-reward">Take Molten One's Gift. (+5% max life)</span></span></div></div>
+                <div class="step" onclick="toggle(this, 'a52_s5')"><div class="step-top"><input type="checkbox" id="a52_s5"><span class="step-text">Return to Khari Crossing - Go to Pools of Khatal (bottom left).</span></div></div>
+                <div class="step" onclick="toggle(this, 'a52_s6')"><div class="step-top"><input type="checkbox" id="a52_s6"><span class="step-text">Pools of Khatal - Tag WP - Go to Sel Khari Sanctuary.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a52_s7')"><div class="step-top"><input type="checkbox" id="a52_s7"><span class="step-text">Sel Khari Sanctuary - Tag WP - Kill Elzarah, the Cobra Lord - Talk to Asala - Portal to Town.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a52_s8')"><div class="step-top"><input type="checkbox" id="a52_s8"><span class="step-text">Town - Talk to NPCs - Go to Khari Crossing - Go to Galai Gates (left).</span></div></div>
+                <div class="step" onclick="toggle(this, 'a52_s9')"><div class="step-top"><input type="checkbox" id="a52_s9"><span class="step-text">Galai Gates - Tag WP - Kill Vornas, the Fell Flame - Go to Qimah.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a52_s10')"><div class="step-top"><input type="checkbox" id="a52_s10"><span class="step-text perm-step">Qimah - Tag WP - <span class="perm-reward">Activate Seven Pillars (all res or other boon)</span></span></div></div>
+                <div class="step" onclick="toggle(this, 'a52_s11')"><div class="step-top"><input type="checkbox" id="a52_s11"><span class="step-text">Summon Jado (end of zone) - Go to Qimah Reservoir.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a52_s12')"><div class="step-top"><input type="checkbox" id="a52_s12"><span class="step-text">Qimah Reservoir - Tag WP - Kill Azmadi, the Faridun Prince - Activate Grand Barya - Talk to Jado - Portal to Town.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a52_s13')"><div class="step-top"><input type="checkbox" id="a52_s13"><span class="step-text">Town - Talk to NPCs - Talk to Hooded One - Go to Mount Kriar.</span></div></div>
             </div>
         </div>
     </details>
 
     <details id="act53">
-        <summary>ACT 5.3: MOUNT KRIAR (BONUSES ONLY)</summary>
+        <summary>ACT 5.3: MOUNT KRIAR</summary>
         <div class="act-content">
             <div class="zone-group">
-                <div class="zone-header"><span class="zone-title">Ashen Forest</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
-                <div class="step" onclick="toggle(this, 'a53_s1')"><div class="step-top"><input type="checkbox" id="a53_s1"><span class="step-text">Ancient Monument <span class="rew">Uncut Skill Gem</span></span></div></div>
-            </div>
-            <div class="zone-group">
-                <div class="zone-header"><span class="zone-title">Kriar Village</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
-                <div class="step" onclick="toggle(this, 'a53_s2')"><div class="step-top"><input type="checkbox" id="a53_s2"><span class="step-text perm-step">Slay Lythara, the Wayward Spear. <span class="perm-reward">(+40 Maximum Spirit)</span></span></div></div>
-            </div>
-            <div class="zone-group">
-                <div class="zone-header"><span class="zone-title">Howling Caves</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
-                <div class="step" onclick="toggle(this, 'a53_s3')"><div class="step-top"><input type="checkbox" id="a53_s3"><span class="step-text perm-step">Slay the Yeti. <span class="perm-reward">(+2 skill points)</span></span></div></div>
-            </div>
-            <div class="zone-group">
-                <div class="zone-header"><span class="zone-title">Kriar Peaks</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
-                <div class="step" onclick="toggle(this, 'a53_s4')"><div class="step-top"><input type="checkbox" id="a53_s4"><span class="step-text">Elder Madox. <span class="rew">Choose a Unique Item</span></span></div></div>
+                <div class="zone-header"><span class="zone-title">Navigation Points</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a53_s1')"><div class="step-top"><input type="checkbox" id="a53_s1"><span class="step-text">Town (The Glade) - Talk to NPCs - Go to Ashen Forest.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a53_s2')"><div class="step-top"><input type="checkbox" id="a53_s2"><span class="step-text">Ashen Forest - Go to Kriar Village.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a53_s3')"><div class="step-top"><input type="checkbox" id="a53_s3"><span class="step-text perm-step">Kriar Village - Tag WP - <span class="perm-reward">Kill Lythara, the Wayward Spear. (+40 Spirit boost)</span></span></div></div>
+                <div class="step" onclick="toggle(this, 'a53_s4')"><div class="step-top"><input type="checkbox" id="a53_s4"><span class="step-text">Go to Glacial Tarn.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a53_s5')"><div class="step-top"><input type="checkbox" id="a53_s5"><span class="step-text">Glacial Tarn - Tag WP - Go to Howling Caves.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a53_s6')"><div class="step-top"><input type="checkbox" id="a53_s6"><span class="step-text perm-step">Howling Caves - Tag WP - <span class="perm-reward">Kill The Abominable Yeti (+2 skill points).</span></span></div></div>
+                <div class="step" onclick="toggle(this, 'a53_s7')"><div class="step-top"><input type="checkbox" id="a53_s7"><span class="step-text">Portal to Town. Town - Talk to Hilda - WP to Glacial Tarn.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a53_s8')"><div class="step-top"><input type="checkbox" id="a53_s8"><span class="step-text">Glacial Tarn - Kill Rakkar, the Frozen Talon - Go to Kriar Peaks.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a53_s9')"><div class="step-top"><input type="checkbox" id="a53_s9"><span class="step-text">Kriar Peaks - Tag WP - Take gift from Elder Madox - Go to Etched Ravine.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a53_s10')"><div class="step-top"><input type="checkbox" id="a53_s10"><span class="step-text">Etched Ravine - Tag WP - Kill Stormgore, the Guardian - Go to Cuachic Vault.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a53_s11')"><div class="step-top"><input type="checkbox" id="a53_s11"><span class="step-text">Cuachic Vault - Tag WP - Kill Zelina, Blood Priestess and Zolin, Blood Priest - Summon Doryani - Portal to Town.</span></div></div>
             </div>
         </div>
     </details>
