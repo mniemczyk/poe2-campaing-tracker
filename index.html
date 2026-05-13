@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PoE2 Leveling Tracker</title>
+    <style>
+        :root {
+            --bg: #0c0c0c;
+            --panel: #151515;
+            --step-bg: #1a1a1a;
+            --step-hover: #222;
+            --text: #b0b0b0;
+            --gold: #af8c4a;
+            --orange: #e67e22; 
+            --blue: #6495ed;
+            --grey: #555;
+            --cyan: #5da9ad; 
+            --tip-color: #98b398;
+            --relic-text: #9c927d;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container { max-width: 600px; width: 100%; }
+
+        header {
+            text-align: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+        }
+
+        h1 {
+            color: var(--gold);
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 5px 0 10px 0;
+        }
+
+        .top-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            font-size: 0.75rem;
+            color: var(--grey);
+        }
+
+        .top-controls label { cursor: pointer; display: flex; align-items: center; gap: 5px; user-select: none; }
+        
+        .reset-btn {
+            background: transparent;
+            border: 1px solid #444;
+            padding: 2px 8px;
+            color: #777;
+            font-size: 0.7rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            border-radius: 3px;
+        }
+        .reset-btn:hover { border-color: #ff4444; color: #ff4444; }
+
+        details {
+            background: var(--panel);
+            margin-bottom: 5px;
+            border: 1px solid #222;
+            border-radius: 3px;
+        }
+
+        summary {
+            padding: 8px 12px;
+            cursor: pointer;
+            color: var(--gold);
+            font-weight: bold;
+            font-size: 0.85rem;
+            list-style: none;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        summary::-webkit-details-marker { display: none; }
+        summary:hover { background: #1c1c1c; }
+        summary::after { content: '+'; color: #444; }
+        details[open] summary::after { content: '−'; }
+
+        .act-content { padding: 4px 6px 10px 6px; }
+
+        .zone-group { margin-bottom: 8px; }
+        .zone-group.is-done { opacity: 0.3; filter: grayscale(0.5); }
+
+        .zone-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 12px 0 4px 4px;
+            border-bottom: 1px solid #222;
+            padding-bottom: 2px;
+        }
+
+        .zone-title {
+            color: var(--blue);
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .relic-note {
+            color: var(--relic-text);
+            font-size: 0.65rem;
+            text-transform: none;
+            margin-left: 4px;
+        }
+
+        .relic-zone .zone-title::before {
+            content: '❗ ';
+            color: var(--orange);
+        }
+
+        .zone-check {
+            font-size: 0.6rem;
+            color: var(--grey);
+            cursor: pointer;
+            text-transform: uppercase;
+            padding: 1px 6px;
+            border: 1px solid #333;
+            border-radius: 2px;
+            background: #111;
+        }
+
+        .zone-check:hover { color: var(--gold); border-color: var(--gold); }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            background: var(--step-bg);
+            margin-bottom: 2px;
+            padding: 4px 10px;
+            border-radius: 2px;
+            cursor: pointer;
+            border-left: 2px solid transparent;
+        }
+
+        .step:hover { background: var(--step-hover); border-left: 2px solid var(--gold); }
+        .step-top { display: flex; align-items: flex-start; }
+        .step input { margin: 3px 10px 0 0; transform: scale(0.9); cursor: pointer; }
+        .step-text { font-size: 0.85rem; line-height: 1.4; }
+
+        .tip {
+            font-size: 0.75rem;
+            color: var(--tip-color);
+            margin-top: 2px;
+            margin-left: 28px;
+            font-style: italic;
+            opacity: 0.85;
+        }
+
+        body.hide-tips .tip { display: none; }
+
+        .step.completed { opacity: 0.15; filter: grayscale(1); }
+        .step.completed .step-text { text-decoration: line-through; }
+        
+        .optional .step-text { color: #555 !important; font-style: italic; }
+        
+        .perm-step::before { content: '❗ '; color: var(--orange); font-weight: bold; }
+        .perm-reward { color: var(--orange) !important; font-weight: bold; }
+        
+        .rew { color: var(--cyan); font-weight: 500; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>PoE2 Campaign Tracker</h1>
+        <div class="top-controls">
+            <label><input type="checkbox" id="tipToggle" checked onchange="updateTipVisibility()"> Show Tips</label>
+            <button class="reset-btn" onclick="resetAll()">Reset Progress</button>
+        </div>
+    </header>
+
+    <details id="act1">
+        <summary>ACT 1: THE DRUIDS</summary>
+        <div class="act-content">
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Riverbank</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a1_s1')"><div class="step-top"><input type="checkbox" id="a1_s1"><span class="step-text">Rush to boss, kill, enter town.</span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Town</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a1_s2')"><div class="step-top"><input type="checkbox" id="a1_s2"><span class="step-text">Take reward go to Clearfell.</span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Clearfell</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a1_s3')"><div class="step-top"><input type="checkbox" id="a1_s3"><span class="step-text perm-step">Kill the witch <span class="perm-reward">(10% cold res)</span></span></div></div>
+                <div class="step optional" onclick="toggle(this, 'a1_s4')"><div class="step-top"><input type="checkbox" id="a1_s4"><span class="step-text">(OPTIONAL) Find the Mysterious Campsite. <span class="rew">Uncut Skill Gem</span></span></div></div>
+                <div class="step optional" onclick="toggle(this, 'a1_s5')">
+                    <div class="step-top"><input type="checkbox" id="a1_s5"><span class="step-text">(OPTIONAL) Find Mud Burrow, kill the boss. <span class="rew">Uncut Skill Gem + Uncut Support Gem</span></span></div>
+                    <div class="tip">Worth doing.</div>
+                </div>
+                <div class="step" onclick="toggle(this, 'a1_s6')"><div class="step-top"><input type="checkbox" id="a1_s6"><span class="step-text">Find exit to Grelwood.</span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Grelwood</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a1_s7')"><div class="step-top"><input type="checkbox" id="a1_s7"><span class="step-text">Find exit to Grim Tangle.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a1_s8')"><div class="step-top"><input type="checkbox" id="a1_s8"><span class="step-text">Find exit to Red Vale.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a1_s9')"><div class="step-top"><input type="checkbox" id="a1_s9"><span class="step-text">Find waypoint/Una/Tree.</span></div></div>
+                <div class="step optional" onclick="toggle(this, 'a1_s10')"><div class="step-top"><input type="checkbox" id="a1_s10"><span class="step-text">(OPTIONAL) Kill the Brambleghast. <span class="rew">Uncut Skill Gem</span></span></div></div>
+                <div class="step optional" onclick="toggle(this, 'a1_s11')"><div class="step-top"><input type="checkbox" id="a1_s11"><span class="step-text">(OPTIONAL) Kill the Witch. <span class="rew">Medium life/mana flask</span></span></div></div>
+                <div class="step" onclick="toggle(this, 'a1_s12')"><div class="step-top"><input type="checkbox" id="a1_s12"><span class="step-text">Go to Red Vale.</span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Red Vale</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a1_s13')">
+                    <div class="step-top"><input type="checkbox" id="a1_s13"><span class="step-text">Take weapon stands, 3 obelisks.</span></div>
+                    <div class="tip">Guaranteed weapon upgrade, RNG which stand gives it, take all if need.</div>
+                </div>
+                <div class="step" onclick="toggle(this, 'a1_s14')"><div class="step-top"><input type="checkbox" id="a1_s14"><span class="step-text">Kill the Rust King boss. <span class="rew">Uncut Skill Gem</span></span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Town</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a1_s15')"><div class="step-top"><input type="checkbox" id="a1_s15"><span class="step-text">Talk to Renly, take runic tools.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a1_s16')"><div class="step-top"><input type="checkbox" id="a1_s16"><span class="step-text">Go to Grelwood, click runes, talk to Una.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a1_s17')"><div class="step-top"><input type="checkbox" id="a1_s17"><span class="step-text">Back to town, talk to Una.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a1_s18')">
+                    <div class="step-top"><input type="checkbox" id="a1_s18"><span class="step-text">Go to Grim Tangle, talk to Una.</span></div>
+                    <div class="tip">Esc -> Respawn at Checkpoint after talking will skip animation.</div>
+                </div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Grim Tangle</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step optional" onclick="toggle(this, 'a1_s19')"><div class="step-top"><input type="checkbox" id="a1_s19"><span class="step-text">(OPTIONAL) Kill the Rotten Druid. <span class="rew">Uncut Support Gem</span></span></div></div>
+                <div class="step" onclick="toggle(this, 'a1_s20')"><div class="step-top"><input type="checkbox" id="a1_s20"><span class="step-text">Find Cemetery of the Eternals.</span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Cemetery</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step optional" onclick="toggle(this, 'a1_s21')"><div class="step-top"><input type="checkbox" id="a1_s21"><span class="step-text">(OPTIONAL) Find sarcophagus. <span class="rew">Normal Rarity Ring</span></span></div></div>
+                <div class="step" onclick="toggle(this, 'a1_s22')">
+                    <div class="step-top"><input type="checkbox" id="a1_s22"><span class="step-text">Kill boss in Mausoleum & Tomb.</span></div>
+                    <div class="tip">After killing second boss use checkpoint to zone beginning and then waypoint to Cemetery.</div>
+                </div>
+                <div class="step optional" onclick="toggle(this, 'a1_s23')"><div class="step-top"><input type="checkbox" id="a1_s23"><span class="step-text">(OPTIONAL) In Tomb - Haunted Treasure (Slay the Eternal Knight). <span class="rew">Uncut Support Gem</span></span></div></div>
+                <div class="step" onclick="toggle(this, 'a1_s24')">
+                    <div class="step-top"><input type="checkbox" id="a1_s24"><span class="step-text">Talk to Lachlan and kill the Lachlan boss. Go Hunting Grounds. <span class="rew">Uncut Skill Gem</span></span></div>
+                    <div class="tip">Logout skip dialogue and animation.</div>
+                </div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Hunting Grounds</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a1_s25')"><div class="step-top"><input type="checkbox" id="a1_s25"><span class="step-text">Find exit to Ogham Farmlands.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a1_s26')"><div class="step-top"><input type="checkbox" id="a1_s26"><span class="step-text">Find exit to Freythorn.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a1_s27')"><div class="step-top"><input type="checkbox" id="a1_s27"><span class="step-text perm-step">Kill Cowbell. <span class="perm-reward">(2 skill points)</span></span></div></div>
+                <div class="step optional" onclick="toggle(this, 'a1_s28')"><div class="step-top"><input type="checkbox" id="a1_s28"><span class="step-text">(OPTIONAL) Dryad encounter <span class="rew">Uncut Support Gem</span></span></div></div>
+                <div class="step optional" onclick="toggle(this, 'a1_s29')"><div class="step-top"><input type="checkbox" id="a1_s29"><span class="step-text">(OPTIONAL) Ritual Altar. <span class="rew">Uncut Skill Gem</span></span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Freythorn</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a1_s30')"><div class="step-top"><input type="checkbox" id="a1_s30"><span class="step-text perm-step">Do 4 rituals, kill boss, go to Ogham Farmlands <span class="perm-reward">(+30 spirit, Uncut Spirit Gem)</span></span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Ogham Farmlands</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a1_s31')">
+                    <div class="step-top"><input type="checkbox" id="a1_s31"><span class="step-text perm-step">Find Una's Lute. <span class="perm-reward">(2 skill points)</span></span></div>
+                    <div class="tip">Somewhere in the middle, in the house.</div>
+                </div>
+                <div class="step optional" onclick="toggle(this, 'a1_s32')"><div class="step-top"><input type="checkbox" id="a1_s32"><span class="step-text">(OPTIONAL) Find Crop Circle. <span class="rew">Uncut Skill Gem</span></span></div></div>
+                <div class="step" onclick="toggle(this, 'a1_s33')"><div class="step-top"><input type="checkbox" id="a1_s33"><span class="step-text">Find exit to Ogham Village.</span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Ogham Village</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a1_s34')">
+                    <div class="step-top"><input type="checkbox" id="a1_s34"><span class="step-text">Find Smithing tools. <span class="rew">Artificer Orb+Blank Lesser Rune (chest rewards)</span></span></div>
+                    <div class="tip">Only first character per league.</div>
+                </div>
+                <div class="step" onclick="toggle(this, 'a1_s35')"><div class="step-top"><input type="checkbox" id="a1_s35"><span class="step-text">Find and kill the Executioner.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a1_s36')"><div class="step-top"><input type="checkbox" id="a1_s36"><span class="step-text">Go to manor ramparts.</span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">The Manor Ramparts</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a1_s37')">
+                    <div class="step-top"><input type="checkbox" id="a1_s37"><span class="step-text">Find exit to Ogham Manor.</span></div>
+                    <div class="tip">Always go the opposite direction of the waypoint after you enter the zone.</div>
+                </div>
+                <div class="step optional" onclick="toggle(this, 'a1_s38')">
+                    <div class="step-top"><input type="checkbox" id="a1_s38"><span class="step-text">(OPTIONAL) Find the gallows. <span class="rew">Uncut Support Gem</span></span></div>
+                    <div class="tip">Hanging guy.</div>
+                </div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Ogham Manor</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a1_s39')">
+                    <div class="step-top"><input type="checkbox" id="a1_s39"><span class="step-text perm-step">Find and kill Candlemasss <span class="perm-reward">(+20 life)</span></span></div>
+                    <div class="tip">He is before the stairs, first location.</div>
+                </div>
+                <div class="step" onclick="toggle(this, 'a1_s40')"><div class="step-top"><input type="checkbox" id="a1_s40"><span class="step-text">Go down stairs x2, go to boss.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a1_s41')"><div class="step-top"><input type="checkbox" id="a1_s41"><span class="step-text">Kill boss, wait for loot, go town, talk to NPC, go act2.</span></div></div>
+            </div>
+        </div>
+    </details>
+
+    <details id="act2">
+        <summary>ACT 2: THE VASTIRI</summary>
+        <div class="act-content">
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Vastiri Outskirts</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a2_s1')"><div class="step-top"><input type="checkbox" id="a2_s1"><span class="step-text">Find and kill Rathbreaker.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a2_s2')"><div class="step-top"><input type="checkbox" id="a2_s2"><span class="step-text">Go back town and enter Caravan.</span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Town</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a2_s3')"><div class="step-top"><input type="checkbox" id="a2_s3"><span class="step-text">Speak to everyone.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a2_s4')"><div class="step-top"><input type="checkbox" id="a2_s4"><span class="step-text">Use desert map and go to Mawdun Quarry.</span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Mawdun Quarry</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step optional" onclick="toggle(this, 'a2_s5')">
+                    <div class="step-top"><input type="checkbox" id="a2_s5"><span class="step-text">(OPTIONAL) Find the Fairdun War Cache. <span class="rew">Artificer Orb</span></span></div>
+                    <div class="tip">Beyond a bridge beside a checkpoint.</div>
+                </div>
+                <div class="step" onclick="toggle(this, 'a2_s6')"><div class="step-top"><input type="checkbox" id="a2_s6"><span class="step-text">Find the Mawdun Mine.</span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Mawdun Mine</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step optional" onclick="toggle(this, 'a2_s7')"><div class="step-top"><input type="checkbox" id="a2_s7"><span class="step-text">(OPTIONAL) Find the Munitions Bunker (Environmental Object). <span class="rew">Uncut Skill Gem</span></span></div></div>
+                <div class="step" onclick="toggle(this, 'a2_s8')"><div class="step-top"><input type="checkbox" id="a2_s8"><span class="step-text">Kill the Rudja.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a2_s9')"><div class="step-top"><input type="checkbox" id="a2_s9"><span class="step-text">Talk to Risu, portal back to town.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a2_s10')"><div class="step-top"><input type="checkbox" id="a2_s10"><span class="step-text">Use desert map and go to Halani Gates.</span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Halani Gates</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a2_s11')"><div class="step-top"><input type="checkbox" id="a2_s11"><span class="step-text">Talk to Asala at the gates, go back to caravan, talk to Risu again, then to Asala again.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a2_s12')"><div class="step-top"><input type="checkbox" id="a2_s12"><span class="step-text">Use desert map to go to Traitor's Passage.</span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Traitor's Passage</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step optional" onclick="toggle(this, 'a2_s13')">
+                    <div class="step-top"><input type="checkbox" id="a2_s13"><span class="step-text">(OPTIONAL) Find and loot the "Bell Chest" (Environmental Object). <span class="rew">Uncut Skill Gem</span></span></div>
+                    <div class="tip">It's in a dead end with a checkpoint.</div>
+                </div>
+                <div class="step" onclick="toggle(this, 'a2_s14')"><div class="step-top"><input type="checkbox" id="a2_s14"><span class="step-text">Find and kill Basala, pick up the Djinn Barya quest item.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a2_s15')">
+                    <div class="step-top"><input type="checkbox" id="a2_s15"><span class="step-text">Find the exit to the Halani Gates.</span></div>
+                    <div class="tip">Stairs up means you are on the right way.</div>
+                </div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Halani Gates</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a2_s16')">
+                    <div class="step-top"><input type="checkbox" id="a2_s16"><span class="step-text">Find and kill Jamanra the risen king.</span></div>
+                    <div class="tip">Always keep close to the canyon. Cross the canyon three times to find the boss.</div>
+                </div>
+                <div class="step" onclick="toggle(this, 'a2_s17')"><div class="step-top"><input type="checkbox" id="a2_s17"><span class="step-text">Go back to town.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a2_s18')"><div class="step-top"><input type="checkbox" id="a2_s18"><span class="step-text">Speak to Zarka and turn in her quest. <span class="rew">Uncut Skill Gem</span></span></div></div>
+                <div class="step" onclick="toggle(this, 'a2_s19')"><div class="step-top"><input type="checkbox" id="a2_s19"><span class="step-text">Use the desert map to go to the Trial of Sekhemas.</span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Trial of Sekhemas</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a2_s20')">
+                    <div class="step-top"><input type="checkbox" id="a2_s20"><span class="step-text">Take waypoint, then go back to town.</span></div>
+                    <div class="tip">You can do the first ascendency trial whenever you feel ready from now on.</div>
+                </div>
+                <div class="step" onclick="toggle(this, 'a2_s21')"><div class="step-top"><input type="checkbox" id="a2_s21"><span class="step-text">Go back to town.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a2_s22')"><div class="step-top"><input type="checkbox" id="a2_s22"><span class="step-text">Talk to everyone, use desert map to go to Keth.</span></div></div>
+            </div>
+            <div class="zone-group relic-zone">
+                <div class="zone-header"><span class="zone-title">Keth <span class="relic-note">(Kabala relic can drop here)</span></span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step optional" onclick="toggle(this, 'a2_s23')"><div class="step-top"><input type="checkbox" id="a2_s23"><span class="step-text">(OPTIONAL) Find the Abandoned Prayer (Environmental Object). <span class="rew">Magic Amulet</span></span></div></div>
+                <div class="step" onclick="toggle(this, 'a2_s24')"><div class="step-top"><input type="checkbox" id="a2_s24"><span class="step-text">Kill (snake) monsters until you find the Kabala Clan relic.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a2_s25')">
+                    <div class="step-top"><input type="checkbox" id="a2_s25"><span class="step-text perm-step">Kill Kabala, the constrictor queen. <span class="perm-reward">(2 skill points)</span></span></div>
+                    <div class="tip">Somewhere on the middle of the zone.</div>
+                </div>
+                <div class="step" onclick="toggle(this, 'a2_s26')">
+                    <div class="step-top"><input type="checkbox" id="a2_s26"><span class="step-text">Find exit to the Lost City.</span></div>
+                    <div class="tip">After a big bridge.</div>
+                </div>
+            </div>
+            <div class="zone-group relic-zone">
+                <div class="zone-header"><span class="zone-title">Lost City <span class="relic-note">(Kabala relic can drop here)</span></span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step optional" onclick="toggle(this, 'a2_s27')"><div class="step-top"><input type="checkbox" id="a2_s27"><span class="step-text">(OPTIONAL) Find the Golden Tomb (Environmental Object). <span class="rew">Uncut Spirit Gem</span></span></div></div>
+                <div class="step optional" onclick="toggle(this, 'a2_s28')"><div class="step-top"><input type="checkbox" id="a2_s28"><span class="step-text">(OPTIONAL) Find the The Ninth Treasure of Keth (Big Bug Monster). <span class="rew">Magic Jewel</span></span></div></div>
+                <div class="step" onclick="toggle(this, 'a2_s29')"><div class="step-top"><input type="checkbox" id="a2_s29"><span class="step-text">Find exit and go to the Buried Shrines.</span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Buried Shrines</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step optional" onclick="toggle(this, 'a2_s30')"><div class="step-top"><input type="checkbox" id="a2_s30"><span class="step-text">(OPTIONAL) Find the Suspicious Sarcophagus (Environmental Object). <span class="rew">Uncut Support Gem</span></span></div></div>
+                <div class="step optional" onclick="toggle(this, 'a2_s31')"><div class="step-top"><input type="checkbox" id="a2_s31"><span class="step-text">(OPTIONAL) Find Elemental Offering (Environmental Object). <span class="rew">Magic Ring (Ruby/Sapphire/Topaz)</span></span></div></div>
+                <div class="step" onclick="toggle(this, 'a2_s32')"><div class="step-top"><input type="checkbox" id="a2_s32"><span class="step-text">Find the exit to the Heart of Keth.</span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Heart of Keth</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a2_s33')"><div class="step-top"><input type="checkbox" id="a2_s33"><span class="step-text">Kill Azarian the Forsaken Son.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a2_s34')"><div class="step-top"><input type="checkbox" id="a2_s34"><span class="step-text">Talk to the goddess, loot the cinders, burn the goddess, loot the essence of water.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a2_s35')"><div class="step-top"><input type="checkbox" id="a2_s35"><span class="step-text">Go to town.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a2_s36')"><div class="step-top"><input type="checkbox" id="a2_s36"><span class="step-text">Talk to Zarka. <span class="rew">Uncut Support Gem</span></span></div></div>
+                <div class="step" onclick="toggle(this, 'a2_s37')"><div class="step-top"><input type="checkbox" id="a2_s37"><span class="step-text">Use desert map to go to Mastodon Badlands.</span></div></div>
+            </div>
+            <div class="zone-group relic-zone">
+                <div class="zone-header"><span class="zone-title">Mastodon Badlands <span class="relic-note">(Sun clan relic can drop here)</span></span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a2_s38')"><div class="step-top"><input type="checkbox" id="a2_s38"><span class="step-text">Kill (hyena) enemies until you found the sun clan relic.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a2_s39')"><div class="step-top"><input type="checkbox" id="a2_s39"><span class="step-text">Find and loot the Fossilised Memorial (Environmental Object). <span class="rew">Uncut Support Gem</span></span></div></div>
+                <div class="step" onclick="toggle(this, 'a2_s40')"><div class="step-top"><input type="checkbox" id="a2_s40"><span class="step-text">Find the exit to the Bone Pits.</span></div></div>
+                <div class="step optional" onclick="toggle(this, 'a2_s41')"><div class="step-top"><input type="checkbox" id="a2_s41"><span class="step-text">(OPTIONAL) Find the Lightless passage to unlock the well of souls.</span></div></div>
+            </div>
+            <div class="zone-group relic-zone">
+                <div class="zone-header"><span class="zone-title">Bone Pits <span class="relic-note">(Sun clan relic can drop here)</span></span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a2_s42')"><div class="step-top"><input type="checkbox" id="a2_s42"><span class="step-text">Kill zone boss and loot the horn.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a2_s43')"><div class="step-top"><input type="checkbox" id="a2_s43"><span class="step-text">Go to town.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a2_s44')"><div class="step-top"><input type="checkbox" id="a2_s44"><span class="step-text">Talk to Zarka.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a2_s45')"><div class="step-top"><input type="checkbox" id="a2_s45"><span class="step-text">Use desert map to go to the Valley of Titans.</span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">The Valley of the Titans</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a2_s46')"><div class="step-top"><input type="checkbox" id="a2_s46"><span class="step-text">Find and click the three ancient seals.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a2_s47')">
+                    <div class="step-top"><input type="checkbox" id="a2_s47"><span class="step-text">Place the two relics in the medallion.</span></div>
+                    <div class="tip">Behind the waypoint.</div>
+                </div>
+                <div class="step" onclick="toggle(this, 'a2_s48')">
+                    <div class="step-top"><input type="checkbox" id="a2_s48"><span class="step-text">Find the exit to Titan Grotto.</span></div>
+                    <div class="tip">Opens when you click three seals.</div>
+                </div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Titan Grotto</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step optional" onclick="toggle(this, 'a2_s49')"><div class="step-top"><input type="checkbox" id="a2_s49"><span class="step-text">(OPTIONAL) Find Titan's Sword (Environmental Object). <span class="rew">Random Lesser Rune</span></span></div></div>
+                <div class="step" onclick="toggle(this, 'a2_s50')"><div class="step-top"><input type="checkbox" id="a2_s50"><span class="step-text">Find and kill the boss.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a2_s51')"><div class="step-top"><input type="checkbox" id="a2_s51"><span class="step-text">Go to town.</span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Town</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a2_s52')"><div class="step-top"><input type="checkbox" id="a2_s52"><span class="step-text">Talk to Zarka, then Asala.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a2_s53')"><div class="step-top"><input type="checkbox" id="a2_s53"><span class="step-text">Go back to Traitor's Passage.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a2_s54')"><div class="step-top"><input type="checkbox" id="a2_s54"><span class="step-text">Sound the horn at the caravan.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a2_s55')"><div class="step-top"><input type="checkbox" id="a2_s55"><span class="step-text">Travel to Deshar.</span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Deshar</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a2_s56')"><div class="step-top"><input type="checkbox" id="a2_s56"><span class="step-text perm-step">Find the body <span class="perm-reward">(2 skill points)</span></span></div></div>
+                <div class="step" onclick="toggle(this, 'a2_s57')"><div class="step-top"><input type="checkbox" id="a2_s57"><span class="step-text">Find exit to Path of Mourning.</span></div></div>
+                <div class="step optional" onclick="toggle(this, 'a2_s58')"><div class="step-top"><input type="checkbox" id="a2_s58"><span class="step-text">(OPTIONAL) Kill Rare Vultures <span class="rew">Djinn</span></span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Path of Mourning</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step optional" onclick="toggle(this, 'a2_s59')"><div class="step-top"><input type="checkbox" id="a2_s59"><span class="step-text">(OPTIONAL) Find Hushed Urn (Environmental Object). <span class="rew">Uncut Skill Gem</span></span></div></div>
+                <div class="step" onclick="toggle(this, 'a2_s60')"><div class="step-top"><input type="checkbox" id="a2_s60"><span class="step-text">Find exit to Spires of Deshar.</span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">The Spires of Deshar</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a2_s61')"><div class="step-top"><input type="checkbox" id="a2_s61"><span class="step-text perm-step">Find Sisters of Garukhan (Environmental Object) <span class="perm-reward">(10% lightning res)</span></span></div></div>
+                <div class="step" onclick="toggle(this, 'a2_s62')"><div class="step-top"><input type="checkbox" id="a2_s62"><span class="step-text">Kill Tor Gul, the Defiler.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a2_s63')"><div class="step-top"><input type="checkbox" id="a2_s63"><span class="step-text">Go to town.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a2_s64')"><div class="step-top"><input type="checkbox" id="a2_s64"><span class="step-text">Talk to Shambrin.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a2_s65')"><div class="step-top"><input type="checkbox" id="a2_s65"><span class="step-text">Talk to everyone, go to Dreadnought.</span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">The Dreadnought</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a2_s66')">
+                    <div class="step-top"><input type="checkbox" id="a2_s66"><span class="step-text">Find the exit to the Dreadnought Vanguard, then find and kill Jamara, the Abomination.</span></div>
+                    <div class="tip">After first phase logout, boss won't regenerate HP.</div>
+                </div>
+                <div class="step" onclick="toggle(this, 'a2_s67')"><div class="step-top"><input type="checkbox" id="a2_s67"><span class="step-text">Talk to Asala, go to act 3.</span></div></div>
+            </div>
+        </div>
+    </details>
+
+    <details id="act3">
+        <summary>ACT 3: THE ZIGGURAT</summary>
+        <div class="act-content">
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Sandswept Marsh</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a3_s1')"><div class="step-top"><input type="checkbox" id="a3_s1"><span class="step-text">Find the exit to the Ziggurat Encampment (town).</span></div></div>
+                <div class="step optional" onclick="toggle(this, 'a3_s2')"><div class="step-top"><input type="checkbox" id="a3_s2"><span class="step-text">(OPTIONAL) Find the Orok Campsite and loot the rare basket. <span class="rew">Lesser Jeweller's Orb</span></span></div></div>
+                <div class="step optional" onclick="toggle(this, 'a3_s3')"><div class="step-top"><input type="checkbox" id="a3_s3"><span class="step-text">(OPTIONAL) Find the Foul Ritual (Environmental Event). <span class="rew">Uncut Skill Gem</span></span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Town</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a3_s4')"><div class="step-top"><input type="checkbox" id="a3_s4"><span class="step-text">Speak to everyone.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a3_s5')"><div class="step-top"><input type="checkbox" id="a3_s5"><span class="step-text">Go to the Jungle Ruins.</span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Jungle Ruins</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step optional" onclick="toggle(this, 'a3_s6')">
+                    <div class="step-top"><input type="checkbox" id="a3_s6"><span class="step-text">(OPTIONAL) Find the Fairdun War Cache. <span class="rew">Artificer Orb</span></span></div>
+                    <div class="tip">Beyond a bridge beside a checkpoint.</div>
+                </div>
+                <div class="step optional" onclick="toggle(this, 'a3_s7')"><div class="step-top"><input type="checkbox" id="a3_s7"><span class="step-text">(OPTIONAL) Find the Jungle Grave (Environmental Object). <span class="rew">Rare Belt</span></span></div></div>
+                <div class="step" onclick="toggle(this, 'a3_s8')">
+                    <div class="step-top"><input type="checkbox" id="a3_s8"><span class="step-text">Find the Exit to Venom Crypts.</span></div>
+                    <div class="tip">Near waypoint. Don't go through, only take waypoint/checkpoint.</div>
+                </div>
+                <div class="step" onclick="toggle(this, 'a3_s9')">
+                    <div class="step-top"><input type="checkbox" id="a3_s9"><span class="step-text">Find the exit to the Infested Barrens.</span></div>
+                    <div class="tip">Don't go through, only take waypoint/checkpoint.</div>
+                </div>
+                <div class="step" onclick="toggle(this, 'a3_s10')"><div class="step-top"><input type="checkbox" id="a3_s10"><span class="step-text perm-step">Find and kill the Mighty Silverfist <span class="perm-reward">(+2 skill points)</span></span></div></div>
+                <div class="step" onclick="toggle(this, 'a3_s11')"><div class="step-top"><input type="checkbox" id="a3_s11"><span class="step-text">Go to the Infested Barrens.</span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Infested Barrens</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a3_s12')">
+                    <div class="step-top"><input type="checkbox" id="a3_s12"><span class="step-text">Find the exit to Chimeral Wetlands.</span></div>
+                    <div class="tip">Don't go through, only take waypoint/checkpoint.</div>
+                </div>
+                <div class="step" onclick="toggle(this, 'a3_s13')">
+                    <div class="step-top"><input type="checkbox" id="a3_s13"><span class="step-text">Find the exit to Azak Bog.</span></div>
+                    <div class="tip">Don't go through, only take waypoint/checkpoint.</div>
+                </div>
+                <div class="step" onclick="toggle(this, 'a3_s14')">
+                    <div class="step-top"><input type="checkbox" id="a3_s14"><span class="step-text">Find the exit to the Matlan Waterways.</span></div>
+                    <div class="tip">Don't go through, only take waypoint/checkpoint.</div>
+                </div>
+                <div class="step" onclick="toggle(this, 'a3_s15')"><div class="step-top"><input type="checkbox" id="a3_s15"><span class="step-text">Teleport to the Venom Crypts.</span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Venom Crypts</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a3_s16')"><div class="step-top"><input type="checkbox" id="a3_s16"><span class="step-text">Find the corpse for the venom phial, then go back to town.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a3_s17')"><div class="step-top"><input type="checkbox" id="a3_s17"><span class="step-text">Talk to the Srvi for a reward.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a3_s18')"><div class="step-top"><input type="checkbox" id="a3_s18"><span class="step-text">Go to the Azak Bog.</span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Azak Bog</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a3_s19')">
+                    <div class="step-top"><input type="checkbox" id="a3_s19"><span class="step-text perm-step">Find and kill Ignagduk <span class="perm-reward">(+30 spirit)</span></span></div>
+                    <div class="tip">If you find Flameskin ritual activate it, it gives res and rarity for the rest of map. Don't force finding.</div>
+                </div>
+                <div class="step" onclick="toggle(this, 'a3_s20')"><div class="step-top"><input type="checkbox" id="a3_s20"><span class="step-text">Go back to town and go to the Chimeral Wetlands.</span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">The Chimeral Wetlands</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a3_s21')">
+                    <div class="step-top"><input type="checkbox" id="a3_s21"><span class="step-text">Find the temple/trial of chaos.</span></div>
+                    <div class="tip">Complete whenever you feel ready.</div>
+                </div>
+                <div class="step" onclick="toggle(this, 'a3_s22')">
+                    <div class="step-top"><input type="checkbox" id="a3_s22"><span class="step-text">Find and kill the Chimera boss.</span></div>
+                    <div class="tip">Juquani's Machinarium opens behind the Chimera.</div>
+                </div>
+                <div class="step" onclick="toggle(this, 'a3_s23')"><div class="step-top"><input type="checkbox" id="a3_s23"><span class="step-text">Enter Juquani's Machinarium.</span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Jiquani's Machinarium</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a3_s24')">
+                    <div class="step-top"><input type="checkbox" id="a3_s24"><span class="step-text">Find the first small soul core, then open the door.</span></div>
+                    <div class="tip">Either left or right of alva.</div>
+                </div>
+                <div class="step" onclick="toggle(this, 'a3_s25')">
+                    <div class="step-top"><input type="checkbox" id="a3_s25"><span class="step-text">Find two more small soul cores.</span></div>
+                    <div class="tip">There are four in total, but only two are needed. A third door is only some gold and a chest. The fourth has no use.</div>
+                </div>
+                <div class="step" onclick="toggle(this, 'a3_s26')"><div class="step-top"><input type="checkbox" id="a3_s26"><span class="step-text perm-step">Find and kill Blackjaw <span class="perm-reward">(10% fire res)</span></span></div></div>
+                <div class="step" onclick="toggle(this, 'a3_s27')"><div class="step-top"><input type="checkbox" id="a3_s27"><span class="step-text">Find the exit towards Jiquani's Sanctum.</span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Jiquani's Sanctum</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step optional" onclick="toggle(this, 'a3_s28')"><div class="step-top"><input type="checkbox" id="a3_s28"><span class="step-text">(OPTIONAL) Find the Grand Soul Core Nexus (Environmental Object). <span class="rew">Uncut Spirit Gem</span></span></div></div>
+                <div class="step" onclick="toggle(this, 'a3_s29')"><div class="step-top"><input type="checkbox" id="a3_s29"><span class="step-text">Don't forget the activate the waypoint right after the entry.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a3_s30')"><div class="step-top"><input type="checkbox" id="a3_s30"><span class="step-text">Talk to alva.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a3_s31')">
+                    <div class="step-top"><input type="checkbox" id="a3_s31"><span class="step-text">Find two medium soul cores.</span></div>
+                    <div class="tip">Soul cores are completely random in the zone.</div>
+                </div>
+                <div class="step" onclick="toggle(this, 'a3_s32')">
+                    <div class="step-top"><input type="checkbox" id="a3_s32"><span class="step-text">Activate both generators.</span></div>
+                    <div class="tip">Generators are always to the left and the right back (relativ to where Alva is standing).</div>
+                </div>
+                <div class="step" onclick="toggle(this, 'a3_s33')"><div class="step-top"><input type="checkbox" id="a3_s33"><span class="step-text">Checkpoint back to Alva.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a3_s34')"><div class="step-top"><input type="checkbox" id="a3_s34"><span class="step-text">Kill Zicoatl, Warden of the core and loot the large soul core.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a3_s35')"><div class="step-top"><input type="checkbox" id="a3_s35"><span class="step-text">Go back to the Infested Barrens waypoint.</span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Infested Barrens</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a3_s36')"><div class="step-top"><input type="checkbox" id="a3_s36"><span class="step-text">Insert the large soul core and go to matlan waterways afterwards.</span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Matlan Waterways</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a3_s37')"><div class="step-top"><input type="checkbox" id="a3_s37"><span class="step-text">Activate every single lever to navigate through the zone, then activate the big one at the end.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a3_s38')"><div class="step-top"><input type="checkbox" id="a3_s38"><span class="step-text">Go back to town.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a3_s39')"><div class="step-top"><input type="checkbox" id="a3_s39"><span class="step-text">Go down the stairs near the well / the Hooded One.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a3_s40')"><div class="step-top"><input type="checkbox" id="a3_s40"><span class="step-text">Talk to Alva, enter the Drowned City.</span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">The Drowned City</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a3_s41')">
+                    <div class="step-top"><input type="checkbox" id="a3_s41"><span class="step-text">Find the exit to the Molten Vault.</span></div>
+                    <div class="tip">Only needed on first character per league.</div>
+                </div>
+                <div class="step" onclick="toggle(this, 'a3_s42')"><div class="step-top"><input type="checkbox" id="a3_s42"><span class="step-text">Find the exit to the Apex of Filth.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a3_s43')"><div class="step-top"><input type="checkbox" id="a3_s43"><span class="step-text">Go to The Molten Vault.</span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">The Molten Vault</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a3_s44')">
+                    <div class="step-top"><input type="checkbox" id="a3_s44"><span class="step-text">Find and kill the boss, then talk to Oswald back in town.</span></div>
+                    <div class="tip">Reforging bench unlock.</div>
+                </div>
+                <div class="step" onclick="toggle(this, 'a3_s45')"><div class="step-top"><input type="checkbox" id="a3_s45"><span class="step-text">Go to the Apex of Filth.</span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">The Apex of Filth</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a3_s46')">
+                    <div class="step-top"><input type="checkbox" id="a3_s46"><span class="step-text">Find and kill the Queen of Filth, then portal back to town.</span></div>
+                    <div class="tip">The zone layout is always a huge spiral, either clockwise or counterclockwise. After you travelled a full 360° of that spiral, you will find the boss.</div>
+                </div>
+                <div class="step" onclick="toggle(this, 'a3_s47')"><div class="step-top"><input type="checkbox" id="a3_s47"><span class="step-text">Go back to town.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a3_s48')"><div class="step-top"><input type="checkbox" id="a3_s48"><span class="step-text">Go down the stairs near the well / the Hooded One again, and enter the Temple of Kopec.</span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">The Temple of Kopec</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a3_s49')"><div class="step-top"><input type="checkbox" id="a3_s49"><span class="step-text">Go up the stairs twice.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a3_s50')"><div class="step-top"><input type="checkbox" id="a3_s50"><span class="step-text">Kill Ketzuli, High priest of the Sun.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a3_s51')"><div class="step-top"><input type="checkbox" id="a3_s51"><span class="step-text">Talk to Alva and ride the elevator up.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a3_s52')"><div class="step-top"><input type="checkbox" id="a3_s52"><span class="step-text">Go through gateway and enter Utzaal.</span></div></div>
+            </div>
+            <div class="zone-group relic-zone">
+                <div class="zone-header"><span class="zone-title">Utzaal <span class="relic-note">(Sacrifical heart can randomly drop in this zone)</span></span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a3_s53')"><div class="step-top"><input type="checkbox" id="a3_s53"><span class="step-text">Search and kill Viper Napuatzi.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a3_s54')"><div class="step-top"><input type="checkbox" id="a3_s54"><span class="step-text">Find the exit to Aggorat and enter Aggorat.</span></div></div>
+            </div>
+            <div class="zone-group relic-zone">
+                <div class="zone-header"><span class="zone-title">Aggorat <span class="relic-note">(Sacrifical heart can randomly drop in this zone)</span></span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a3_s55')"><div class="step-top"><input type="checkbox" id="a3_s55"><span class="step-text">Find the exit towards the Black Chambers.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a3_s56')"><div class="step-top"><input type="checkbox" id="a3_s56"><span class="step-text">Find the Sacrificial table.</span></div></div>
+                <div class="step" onclick="toggle(this, 'a3_s57')">
+                    <div class="step-top"><input type="checkbox" id="a3_s57"><span class="step-text">The sacrificial heart can randomly drop in this zone.</span></div>
+                    <div class="tip">If you haven't found it until now, continue to kill monsters until you find it.</div>
+                </div>
+                <div class="step" onclick="toggle(this, 'a3_s58')"><div class="step-top"><input type="checkbox" id="a3_s58"><span class="step-text perm-step">Checkpoint port to the sacrificial table, loot the dagger, place the heart, stab the heart <span class="perm-reward">(+2 skill points)</span></span></div></div>
+                <div class="step" onclick="toggle(this, 'a3_s59')"><div class="step-top"><input type="checkbox" id="a3_s59"><span class="step-text">Checkpoint port to the Black Chambers, enter the Black Chambers.</span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">The Black Chambers</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a3_s60')">
+                    <div class="step-top"><input type="checkbox" id="a3_s60"><span class="step-text">Find and defeat Doryiani, Royal Thaumaturge.</span></div>
+                    <div class="tip">He is always to the top left or top right of the zone, depending on which angle the entry to the zone is.</div>
+                </div>
+                <div class="step" onclick="toggle(this, 'a3_s61')"><div class="step-top"><input type="checkbox" id="a3_s61"><span class="step-text">Go through the Portal to the encampment, speak with Doryani, after the cataclysm speak with him again, then speak with the Sin and eventually Alva to get to Act 4 (Kingsmarch).</span></div></div>
+            </div>
+        </div>
+    </details>
+
+    <details id="act4">
+        <summary>ACT 4: KINGSMARCH (BONUSES ONLY)</summary>
+        <div class="act-content">
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Campaign Bonuses</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a4_s1')"><div class="step-top"><input type="checkbox" id="a4_s1"><span class="step-text perm-step">Journey's End: Defeat Omniphobia and complete the Dark Mists Quest: <span class="perm-reward">(+2 skill points)</span></span></div></div>
+                <div class="step" onclick="toggle(this, 'a4_s2')"><div class="step-top"><input type="checkbox" id="a4_s2"><span class="step-text perm-step">Halls of the Dead: Trial of Ngkanu - <span class="perm-reward">(Choice between +5% Fire Res or +5 Strength, +5% Cold Resistance or +5 Dexterity, and +5% Lightning Resistance or +5 Intelligence)</span></span></div></div>
+                <div class="step" onclick="toggle(this, 'a4_s3')"><div class="step-top"><input type="checkbox" id="a4_s3"><span class="step-text perm-step">Halls of the Dead: <span class="perm-reward">(5% increased Maximum Mana)</span></span></div></div>
+                <div class="step" onclick="toggle(this, 'a4_s4')"><div class="step-top"><input type="checkbox" id="a4_s4"><span class="step-text perm-step">Trail of the Ancestors. Complete the Trial, speak to Hinekora at the end. <span class="perm-reward">(+2 skill points)</span></span></div></div>
+                <div class="step" onclick="toggle(this, 'a4_s5')"><div class="step-top"><input type="checkbox" id="a4_s5"><span class="step-text">Whakapanu Island: Crab Cave <span class="rew">Uncut Support Gem</span></span></div></div>
+                <div class="step" onclick="toggle(this, 'a4_s6')"><div class="step-top"><input type="checkbox" id="a4_s6"><span class="step-text">Singing Caverns: Beckoning Clam - Return the Pearl to Rog in Kingsmarch <span class="rew">Rare Pearlescent Amulet (implicit grants #% to All Elemental Resistances)</span></span></div></div>
+                <div class="step" onclick="toggle(this, 'a4_s7')"><div class="step-top"><input type="checkbox" id="a4_s7"><span class="step-text">Arastas: Morning & Evening Bell <span class="rew">3 Regal Orbs + 3 Exalted Orbs</span></span></div></div>
+                <div class="step" onclick="toggle(this, 'a4_s8')"><div class="step-top"><input type="checkbox" id="a4_s8"><span class="step-text">Isle of Kin: Beast Pen <span class="rew">Uncut Skill Gem + Uncut Support Gem (unconfirmed if consistent)</span></span></div></div>
+                <div class="step" onclick="toggle(this, 'a4_s9')"><div class="step-top"><input type="checkbox" id="a4_s9"><span class="step-text">Volcanic Warrens: Volcanic Nest - Two bosses <span class="rew">possible Rare Ring drop?</span></span></div></div>
+            </div>
+        </div>
+    </details>
+
+    <details id="act51">
+        <summary>ACT 5.1: OGHAM (BONUSES ONLY)</summary>
+        <div class="act-content">
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Wolvenhold</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a51_s1')">
+                    <div class="step-top"><input type="checkbox" id="a51_s1"><span class="step-text perm-step">Wolvenhold Boss <span class="perm-reward">(+2 skill points)</span></span></div>
+                    <div class="tip">Wolvenhold is found after Holten.</div>
+                </div>
+            </div>
+        </div>
+    </details>
+
+    <details id="act52">
+        <summary>ACT 5.2: KHARI BAZAAR (BONUSES ONLY)</summary>
+        <div class="act-content">
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Khari Crossing</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a52_s1')">
+                    <div class="step-top"><input type="checkbox" id="a52_s1"><span class="step-text perm-step">Inside the Skullmaw Stairway - Molten One's Gift: <span class="perm-reward">(+5% to Maximum Life)</span></span></div>
+                    <div class="tip">You might need to find a seal in the Khari.</div>
+                </div>
+                <div class="step" onclick="toggle(this, 'a52_s2')"><div class="step-top"><input type="checkbox" id="a52_s2"><span class="step-text perm-step">Slay the Worm and Scorpion and talk to Risu. <span class="perm-reward">(+2 skill points)</span></span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Qimah</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a52_s3')"><div class="step-top"><input type="checkbox" id="a52_s3"><span class="step-text">Qimah - Choice of 7 Boons.</span></div></div>
+            </div>
+        </div>
+    </details>
+
+    <details id="act53">
+        <summary>ACT 5.3: MOUNT KRIAR (BONUSES ONLY)</summary>
+        <div class="act-content">
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Ashen Forest</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a53_s1')"><div class="step-top"><input type="checkbox" id="a53_s1"><span class="step-text">Ancient Monument <span class="rew">Uncut Skill Gem</span></span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Kriar Village</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a53_s2')"><div class="step-top"><input type="checkbox" id="a53_s2"><span class="step-text perm-step">Slay Lythara, the Wayward Spear. <span class="perm-reward">(+40 Maximum Spirit)</span></span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Howling Caves</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a53_s3')"><div class="step-top"><input type="checkbox" id="a53_s3"><span class="step-text perm-step">Slay the Yeti. <span class="perm-reward">(+2 skill points)</span></span></div></div>
+            </div>
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Kriar Peaks</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'a53_s4')"><div class="step-top"><input type="checkbox" id="a53_s4"><span class="step-text">Elder Madox. <span class="rew">Choose a Unique Item</span></span></div></div>
+            </div>
+        </div>
+    </details>
+
+    <details id="actEnd">
+        <summary>END: SIEGE OF ORIATH</summary>
+        <div class="act-content">
+            <div class="zone-group">
+                <div class="zone-header"><span class="zone-title">Final Reward</span><span class="zone-check" onclick="toggleZone(this)">Done</span></div>
+                <div class="step" onclick="toggle(this, 'end_s1')"><div class="step-top"><input type="checkbox" id="end_s1"><span class="step-text perm-step">Talk to The Hooded One in Kingsmarch after finishing the Interlude Acts to complete the quest Siege Of Oriath. <span class="perm-reward">(+2 skill points)</span></span></div></div>
+            </div>
+        </div>
+    </details>
+</div>
+
+<script>
+    function toggle(element, id) {
+        const checkbox = document.getElementById(id);
+        if (event.target.tagName !== 'INPUT') checkbox.checked = !checkbox.checked;
+        checkbox.checked ? element.classList.add('completed') : element.classList.remove('completed');
+        localStorage.setItem('p2_step_' + id, checkbox.checked);
+        checkGroupCompletion(element.closest('.zone-group'));
+    }
+
+    function toggleZone(btn) {
+        const group = btn.closest('.zone-group');
+        const checkboxes = group.querySelectorAll('input[type="checkbox"]');
+        const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+        checkboxes.forEach(cb => {
+            cb.checked = !allChecked;
+            const stepDiv = cb.closest('.step');
+            cb.checked ? stepDiv.classList.add('completed') : stepDiv.classList.remove('completed');
+            localStorage.setItem('p2_step_' + cb.id, cb.checked);
+        });
+        checkGroupCompletion(group);
+    }
+
+    function checkGroupCompletion(group) {
+        const checkboxes = group.querySelectorAll('input[type="checkbox"]');
+        const btn = group.querySelector('.zone-check');
+        const allDone = Array.from(checkboxes).every(cb => cb.checked);
+        if (allDone) { group.classList.add('is-done'); btn.innerText = "Undo"; } 
+        else { group.classList.remove('is-done'); btn.innerText = "Done"; }
+    }
+
+    function updateTipVisibility() {
+        const isVisible = document.getElementById('tipToggle').checked;
+        isVisible ? document.body.classList.remove('hide-tips') : document.body.classList.add('hide-tips');
+        localStorage.setItem('p2_show_tips', isVisible);
+    }
+
+    function resetAll() {
+        if (confirm("Clear all leveling progress?")) {
+            Object.keys(localStorage).forEach(k => { if (k.startsWith('p2_')) localStorage.removeItem(k); });
+            location.reload();
+        }
+    }
+
+    window.onload = () => {
+        const savedTips = localStorage.getItem('p2_show_tips');
+        if (savedTips !== null) {
+            document.getElementById('tipToggle').checked = (savedTips === 'true');
+            updateTipVisibility();
+        }
+        document.querySelectorAll('.step input').forEach(cb => {
+            const saved = localStorage.getItem('p2_step_' + cb.id) === 'true';
+            if (saved) {
+                cb.checked = true;
+                cb.closest('.step').classList.add('completed');
+            }
+        });
+        document.querySelectorAll('.zone-group').forEach(group => checkGroupCompletion(group));
+    };
+</script>
+</body>
+</html>
